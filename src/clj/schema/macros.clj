@@ -405,9 +405,11 @@
                   fn-args
                   (cons (gensym "fn") fn-args))
         [name more-fn-args] (extract-arrow-schematized-element &env fn-args)
-        {:keys [outer-bindings schema-form fn-body]} (process-fn- &env name more-fn-args)]
+        {:keys [outer-bindings schema-form fn-body]} (process-fn- &env name more-fn-args)
+        fn-form (vary-meta `(clojure.core/fn ~name ~@fn-body)
+                           #(merge (meta &form) %))]
     `(let ~outer-bindings
-       (schema.core/schematize-fn (clojure.core/fn ~name ~@fn-body) ~schema-form))))
+       (schema.core/schematize-fn ~fn-form ~schema-form))))
 
 (clojure.core/defn normalized-defn-args
   "Helper for defining defn-like macros with schemas.  Env is &env
